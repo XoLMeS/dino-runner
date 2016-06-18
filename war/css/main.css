@@ -1,0 +1,12 @@
+canvas {
+    position: absolute;
+    margin: 10%;
+    border: 4px double black;
+    border-color:  red;
+}
+
+body {
+    background-color: black;
+    background-image: url(../images/texture_1.jpg);
+    background-size: 100%;
+}
