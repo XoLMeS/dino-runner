@@ -10,3 +10,13 @@ body {
     background-image: url(../images/texture_1.jpg);
     background-size: 100%;
 }
+
+.local_scores {
+    position: absolute;
+    right: 10%;
+    top: 20%;
+    color:aqua;
+    font-family: fantasy;
+    background-color: azure;
+    
+}

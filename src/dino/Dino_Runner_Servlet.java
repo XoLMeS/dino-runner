@@ -46,6 +46,7 @@ public class Dino_Runner_Servlet extends HttpServlet{
 						+"<head> \n" 
 							+"<title>DINO-RUNNER</title> \n"
 							+"<script type='text/javascript' src='js/jquery-2.2.3.js'></script> \n"
+							+"<script src='https://code.createjs.com/soundjs-0.6.2.min.js'></script>"
 							+"<link rel='stylesheet' type='text/css' href='css/main.css' />"
 							//+"<link rel='stylesheet' type='text/css' href='css/game.css' />"
 							//+"<script src='js/game.js'></script>"
@@ -55,7 +56,7 @@ public class Dino_Runner_Servlet extends HttpServlet{
 						+"</head> \n"
 						+"<body> \n"
 							+"<div clas='header'>Header</div> \n"
-							+"<div class='game'>Game</div> \n"
+							+"<div class='local_scores'>Local Scores</div> \n"
 							+"<div class='footer'>Footer</div> \n"
 						+"</body> \n"
 				+"</html> \n";
@@ -67,6 +68,7 @@ public class Dino_Runner_Servlet extends HttpServlet{
 				 "<script> \n"
 					+"var objects = [];"
 					+"var ground_array = [];"
+					+"var local_scores = [];"
 					+"var ground_speed = "+ground_speed+";"
 					+"var id = 1;"
 					+"var ticks = 0;"
@@ -87,7 +89,10 @@ public class Dino_Runner_Servlet extends HttpServlet{
 					+"var dino_duck = PIXI.Texture.fromImage('images/dino_duck_1.png'); \n" 
 					+"var dino_duck_1 = PIXI.Texture.fromImage('images/dino_duck_2.png'); \n" 
 					+"var dino_duck_2 = PIXI.Texture.fromImage('images/dino_duck_3.png'); \n" 
-					
+					+"var sound_on_icon = PIXI.Texture.fromImage('images/sound_on_icon.png'); \n" 
+					+"var sound_off_icon = PIXI.Texture.fromImage('images/sound_off_icon.png'); \n" 
+					+"var music_on_icon = PIXI.Texture.fromImage('images/music_on_icon.png'); \n" 
+					+"var music_off_icon = PIXI.Texture.fromImage('images/music_off_icon.png'); \n" 
 					
 					+"var swap = true;"
 					+"var stage = new PIXI.Container(); \n"
@@ -101,6 +106,31 @@ public class Dino_Runner_Servlet extends HttpServlet{
 					//+"console.log(PIXI); \n"
 						
 						+"$(function(){ \n"
+						
+						// LOAD SOUNDS
+							+"var main_theme;"
+							+"var arrow_sound_muted = false;"
+							+"var jump_sound_muted = false;"
+							+"var shuriken_sound_muted = false;"
+							+"var coin_sound_muted = false;"
+							
+							+"createjs.Sound.on('fileload', handleLoad);"
+							
+							+"createjs.Sound.registerSound('sounds/jump_sound.mp3', 'jump_sound',2);"
+							+"createjs.Sound.registerSound('sounds/coin_sound.mp3', 'coin_sound',2);"
+							+"createjs.Sound.registerSound('sounds/arrow_sound.mp3', 'arrow_sound',2);"
+							+"createjs.Sound.registerSound('sounds/shuriken_sound.mp3', 'shuriken_sound',2);"
+							+"createjs.Sound.registerSound('sounds/main_theme.mp3', 'main_theme', 3);"
+							
+							
+							
+							+" function handleLoad(event) {"
+								+"main_theme = createjs.Sound.play('main_theme', {interrupt: createjs.Sound.INTERRUPT_ANY, loop:-1, volume: 0.1});"
+							
+								+"main_theme.play('main_theme');"   
+							+"}"
+								
+							+addMusicAndSoundButtons(req, resp)
 						  	+addGround()
 						// SET POSITION
 							+"record.position.x = " + WIDTH + " - " + WIDTH/3 + "; \n"
@@ -137,12 +167,16 @@ public class Dino_Runner_Servlet extends HttpServlet{
 							+"renderer.render(stage); \n"
 							+"requestAnimationFrame( animate ); \n"
 							+ animate(req, resp)
+							+"getFromLocal();"
 						+"}); \n"
 						
 					// FUNCTIONS
 					+ getTicksFunction()
 					+ addTextureFunction()
 					+ spawnObjectFunction()
+					+ saveScoreFunction()
+					+ saveFunction()
+					+ getFromLocalFunction()
 					
 				+"</script> \n";
 	}
@@ -179,8 +213,6 @@ public class Dino_Runner_Servlet extends HttpServlet{
 	private String addTextureFunction(){
 		return
 				"function addTexture(name,x,y){ \n"
-				//+"bunny.anchor.x = 0.5; \n"
-				//+"bunny.anchor.y = 0.5; \n"
 				+"name.position.x = x; \n"
 				+"name.position.y = y; \n"
 				+"stage.addChild(name);} \n"
@@ -218,6 +250,9 @@ public class Dino_Runner_Servlet extends HttpServlet{
 					+"case 2:"		
 					+"case 3:"
 					+"case 4:"
+						+ "if(!arrow_sound_muted){"
+							+"createjs.Sound.play('arrow_sound', {volume:0.3});"
+						+ "}"   
 						+"image = \"arrow.png\";"
 						+"type = \"arrow\";"
 						+"speed = -15;"
@@ -226,6 +261,9 @@ public class Dino_Runner_Servlet extends HttpServlet{
 						+"width = 75;"
 						+"break;"
 					+"default:"
+						+ "if(!shuriken_sound_muted){"
+							+"createjs.Sound.play('shuriken_sound', {volume:0.2});"
+						+ "}"   
 						+"image = \"shuriken.png\";"
 						+"type = \"shuriken\";"
 						+"speed = -10;"
@@ -288,12 +326,75 @@ public class Dino_Runner_Servlet extends HttpServlet{
 	private String addClick(HttpServletRequest req, HttpServletResponse resp){
 		
 		return 
-				 "var rect = new PIXI.Graphics(); \n" 
-				+"rect.lineStyle(1, 0x000); \n"
-				+"rect.interactive = true; \n"
-				+"rect.hitArea = new PIXI.Rectangle(0,0,"+WIDTH +","+ HEIGHT + " ); \n"
-				+"rect.click = function(event){console.log('click');}; \n"
-				+"stage.addChild(rect); \n"
+				""
+				;
+	}
+	
+private String addMusicAndSoundButtons(HttpServletRequest req, HttpServletResponse resp){
+		
+		return 
+				// CREATE OBJECTS
+				 "var  sound = new PIXI.Sprite(sound_on_icon); \n"
+				+"var  music = new PIXI.Sprite(music_on_icon); \n"
+			
+				+"var sound_button = new PIXI.Graphics(); \n" 
+				+"var music_button = new PIXI.Graphics(); \n" 
+				
+				// DEFAULT SETTINGS
+				+"sound_button.dis = false;"
+				+"music_button.dis = false;"
+				+"sound_button.lineStyle(1, 0x000); \n"
+				+"music_button.lineStyle(1, 0x000); \n"
+				+"sound_button.interactive = true; \n"
+				+"music_button.interactive = true; \n"
+				+"sound_button.hitArea = new PIXI.Rectangle(250,0,300,50 ); \n"
+				+"music_button.hitArea = new PIXI.Rectangle(350,0,400,50); \n"
+				
+				+"sound_button.addChild(sound);"
+				+"music_button.addChild(music);"
+				+"sound.width = 50;"
+				+"sound.height = 50;"
+				+"music.width = 50;"
+				+"music.height = 50;"
+				+"sound.x = 250;"
+				+"music.x = 350;"
+				
+				+"sound_button.click = function(event){"
+					+ "if(sound_button.dis){"
+						+ "sound_button.dis = false;"
+						+ "sound.texture = sound_on_icon;"
+						
+						+ "coin_sound_muted = false;"
+						+ "jump_sound_muted = false;"
+						+ "arrow_sound_muted = false;"
+						+ "shuriken_sound_muted = false;"
+					+ "}"
+					+ "else {"
+						+ "sound_button.dis = true;"
+						+ "sound.texture = sound_off_icon;"
+						
+						+ "coin_sound_muted = true;"
+						+ "jump_sound_muted = true;"
+						+ "arrow_sound_muted = true;"
+						+ "shuriken_sound_muted = true;"
+					+ "}"
+				+ "}; \n"
+					
+				+"music_button.click = function(event){"
+					+ "if(music_button.dis){"
+						+ "music_button.dis = false;"
+						+ "music.texture = music_on_icon;"
+						+ "main_theme.muted = false;"
+					+ "}"
+					+ "else {"
+						+ "music_button.dis = true;"
+						+ "music.texture = music_off_icon;"
+						+ "main_theme.muted = true;"
+					+ "}"
+				+ "}; \n"
+					
+				+"stage.addChild(sound_button); \n"
+				+"stage.addChild(music_button); \n"
 				;
 	}
 	
@@ -403,7 +504,7 @@ public class Dino_Runner_Servlet extends HttpServlet{
 				+"var left = keyboard(37), \n"
 		 		+"up = keyboard(38), \n"
 			    +"right = keyboard(39), \n"
-			    +"down = keyboard(40),"
+			    +"down = keyboard(83),"
 			    +"pause = keyboard(80),"
 			    + "restart = keyboard(82); \n"
 			    +"space = keyboard(32); \n"
@@ -414,6 +515,9 @@ public class Dino_Runner_Servlet extends HttpServlet{
 			    +"if(!dino.isJumping && !down.isDown && !failed && !paused){"
 			    	+"dino.vy = -10; \n"
 			    	+"dino.isJumping = true;"
+			    	+ "if(!jump_sound_muted){"
+			    		+"createjs.Sound.play('jump_sound',{volume:0.3});"
+			    	+ "}"
 			    	+ "dino.texture = dino_jump;}"
 			    +"} \n"
 			    +"space.release = function(){"
@@ -472,11 +576,20 @@ public class Dino_Runner_Servlet extends HttpServlet{
 					
 						 +"if((item.y < dino.y+vy_duck && (item.y+item.height-vy) > (dino.y+vy_duck)) || (item.y+5 < dino.y+dino.height+vy_duck && (item.y+item.height-vy) > (dino.y+vy_duck))){"
 							+ "if(item.type == 'arrow' || item.type == 'shuriken' ){"
-							+ "failed = true;"
-							+ "alert.text = 'Game Over';"
-							+ "alert.position.x = " + WIDTH/2 + " -alert.width/2 ; "
+								+ "failed = true;"
+								+ "alert.text = 'Game Over';"
+								+ "saveScore(getTicks());"
+								+ "alert.position.x = " + WIDTH/2 + " -alert.width/2 ; "
 							+ "}"
-						 	+ "if(item.type == 'coin'){coins_score.text = 'X'+(++coins_cap);objects.splice(i,1);stage.removeChild(item);}"
+						 	+ "if(item.type == 'coin'){"
+						 		+ "if(!coin_sound_muted){"
+						 			+ "createjs.Sound.play('coin_sound',{volume:0.2});"
+						 		+ "}"   
+							 	+ "coins_score.text = 'X'+(++coins_cap);"
+							 	+ "objects.splice(i,1);"
+							 	+ "stage.removeChild(item);"
+							 	
+						 	+ "}"
 						 + "}"
 					+ "} \n"
 					
@@ -487,34 +600,102 @@ public class Dino_Runner_Servlet extends HttpServlet{
 	private String restartFunction(){
 		return 
 				"restart.press = function(){"
-				// REMOVE ALL OBJECTS
-				+"var l = objects.length;"
-				+ "for(var i = 0; i < l; i++){"
-					+ "stage.removeChild(objects[0]);"
-					+ "objects.splice(0,1);"
+				
+					// REMOVE ALL OBJECTS
+					+"var l = objects.length;"
+					+ "for(var i = 0; i < l; i++){"
+						+ "stage.removeChild(objects[0]);"
+						+ "objects.splice(0,1);"			
+					+ "} \n"
 					
-				+ "} \n"
-				// SET DEFAULT DINO TEXTURE AND POSITION
-				+ "dino.texture = dino_skin; "
-				+ "dino.x =  100; "
-				+ "dino.y = "+HEIGHT+"-150;"
-				// SET UP SCORE, COINS, ALERT FIELDS
-				+ "ticks = 0;"
-				+ "last_tick = 0;"
-				+ "score.text = 'Score: 0';"
-				+ "coins_score.text = 'X0';"
-				+ "alert.text = 'Press \"Space\" to start';"
-				+ "alert.position.x = " + WIDTH/2 + " -alert.width/2 ; "
-				// SET UP BOOLEANS
-				+ "started = false;"
-				+ "paused = false;"
-				+ "failed = false;"
-				+ "dino.isJumping = false;"
-				+ "dino.duck = false;"
-				+ "dino.isFalling = false;"
-
-				+ "};"
+					// SET DEFAULT DINO TEXTURE AND POSITION
+					+ "dino.texture = dino_skin; "
+					+ "dino.x =  100; "
+					+ "dino.y = "+HEIGHT+"-150;"
+					
+					// SET UP SCORE, COINS, ALERT FIELDS
+					+ "ticks = 0;"
+					+ "last_tick = 0;"
+					+ "score.text = 'Score: 0';"
+					+ "coins_score.text = 'X0';"
+					+ "coins_cap = 0;"
+					+ "alert.text = 'Press \"Space\" to start';"
+					+ "alert.position.x = " + WIDTH/2 + " -alert.width/2 ; "
+					
+					// SET UP BOOLEANS
+					+ "started = false;"
+					+ "paused = false;"
+					+ "failed = false;"
+					+ "dino.isJumping = false;"
+					+ "dino.duck = false;"
+					+ "dino.isFalling = false;"
+				+ "}; \n"
 				;
+	}
+	
+	private String getFromLocalFunction(){
+		return 
+				"function getFromLocal(){"
+					+ "var ar = localStorage.getItem('local_scores');"
+					+ "if(ar){"
+						+ "ar = ar.split(',');"
+						+ "ar.forEach(function(item,i,ar){"
+							+ "console.log('local ',item);"
+							+ "if(item){"
+								+ "if(i==0){"
+									+ "record.text = 'Record: ' + item;"
+								+ "}"
+								+ "local_scores.splice(i,1,parseInt(item));"
+							+ "}"
+						+ "});"
+					+ "}"
+				+ "}"
+			
+				;
+	}
+	
+	private String saveScoreFunction(){
+		return 
+				"function saveScore(new_score){"
+					+"for(var i = 0; i < 10; i++){"
+						+"var f = local_scores[i];"
+				        +"if(f){"
+				            +"if(new_score > f){"
+				            	+ "if(i==0){"
+				            		+ "record.text = 'Record: ' + new_score;"
+				            	+ "}"
+				                +"for(var j = 8; j >= i; j--){"
+				                    +"var buff = local_scores[j];"
+				                    +"if(buff!=null){"
+				                        +"local_scores.splice((j+1),1, buff);"
+				                    +"}"
+				                +"}"
+				                +"local_scores.splice(i,1, new_score);"
+				                +"save();"
+				                +"return;"
+				            +"}"
+				        +"}"
+				        +"else {"
+				        	 +"local_scores.splice(i,1, new_score);"
+				        	 +"save();"
+				             +"return;"
+				         +"}"
+				     +"}"
+				     +"save();"
+				+"}"
+				;
+	}
+	
+	private String saveFunction(){
+		return 
+				"function save(){"			
+					+ "localStorage.setItem('local_scores',local_scores);"
+				+ "}"
+				;
+	}
+	
+	private String updateScores(){
+		return "";
 	}
 	
 }
