@@ -9,6 +9,7 @@ var coins_cap = 0;
 var paused = false;
 var started = false;
 var failed = false;
+var debug;
 var renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT, {
     backgroundColor: 0xffffff
 }, true);
@@ -25,7 +26,8 @@ var sound_on_icon = PIXI.Texture.fromImage('images/sound_on_icon.png');
 var sound_off_icon = PIXI.Texture.fromImage('images/sound_off_icon.png');
 var music_on_icon = PIXI.Texture.fromImage('images/music_on_icon.png');
 var music_off_icon = PIXI.Texture.fromImage('images/music_off_icon.png');
-var swap = true;
+var realSwap = true;
+var shadowSwap = true;
 var stage = new PIXI.Container();
 var score = new PIXI.Text('Score: 0', {
     font: '24px Arial',
@@ -55,6 +57,7 @@ var coins_score = new PIXI.Text('X0', {
     dropShadow: true,
     dropShadowDistance: 4
 });
+var SHADOW_TEST = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiEgBYCuATgJYDWMAdiAC+AXSoBGLDlT4QRVBmKVqdBqiZsuvASPHY8hNAqU16jFhx78hokACZJ+2SXJUTq9Ra3WqtvdIOoACwAbMYqjHBgnNo2ilIyciFhpmoAhuzsYADu3iDEfgmGiq7hauaaVjoggQ7+TkGhJSkeFTFUgQUBZMnu6Zk5VdjxAUZNvRnZuRid9d1jZhqWMYJUvAQo6CBSoGJ4xLbCKyDBaDt4ABzEh1Tnp1t7B0diu5svuPvXIGK2d/GXn2ITq8LlcngB2X4PT62Yh3N4fI62QKQ6T/RGkFHvA7iEGfYhAs7SBFUYgQzZ/UHtH7A1GU6rI8lQo4YF6ErGfDDU0AUjlktloqgYDGMomPKjBBls4nHDCYgUgMHbL64o5g1n3UWfc5K+FikCXOV087C/l08iY6WkPnKzVHUgmjW4eUSWUi9lPCRwlXiEKGgGKr228SkWFu6ViK2Bp102yAv2I2xcm3unyBdXxaVI0Om6HBW5u+W2MHZ5OFsEOnmI86unNV/Pc712Ujqt6FyMFumKSWlztibuVkn2KPS/YO1udxQWvX4+uO+Wkku6vHnJMZ6fna1Lo5kGuO6U1btb9qkqefQLEWfjjlYCuNzm7o8gBQltccmrDvUYDqn5nTD+HI4EE4OBuA2aZgkEIA";
 $(function() {
     var main_theme;
     var arrow_sound_muted = false;
@@ -155,6 +158,8 @@ $(function() {
     var texture = PIXI.Texture.fromImage('images/dino_default.png');
     var dino = new PIXI.Sprite(texture);
     addTexture(dino, 100, 450);
+    var shadowDino = new PIXI.Sprite(texture);
+    addTexture(shadowDino, 115, 450);
     var texture = PIXI.Texture.fromImage('images/coin.png');
     var coin = new PIXI.Sprite(texture);
     addTexture(coin, 10, 10);
@@ -162,6 +167,21 @@ $(function() {
     coin.height = 70;
     dino.isJumping = false;
     dino.isFalling = false;
+    shadowDino.isFalling = false;
+    shadowDino.isFalling = false;
+    shadowDino.alpha = 0.3;
+    // Obstacles and collectables registry
+    // objects[ticks] - array of objects, spawned "ticks" afters start
+    // objects[ticks].y - y pos, objects[ticks].type - object type
+    var objects_record = {};
+    // Key registring for shadow player
+    // keys_record[ticks] - key events for current tick
+    // keys_record[ticks][0] - up events
+    // keys_record[ticks][1] - down events
+    // keys_record[ticks][0] or keys_record[ticks][1] - array of keycodes.
+    //
+    // keys_record[35][0][32] means space key is down on tick 35
+    var keys_record = {};
 
     function keyboard(keyCode) {
         var key = {};
@@ -195,17 +215,36 @@ $(function() {
         right = keyboard(39),
         down = keyboard(83),
         pause = keyboard(80),
-        restart = keyboard(82);
-    space = keyboard(32);
-    space.press = function() {
+        restart = keyboard(82),
+        space = keyboard(32);
+
+    function putEvent(time, eventCode, keyCode) {
+        if (keyCode === restart.code || keyCode === pause.code || failed) {
+            return;
+        }
+        var k = keys_record[time];
+        if (!k) {
+            k = {};
+        }
+        var e = k[eventCode];
+        if (!e) {
+            e = [];
+        }
+        e.push(keyCode);
+        k[eventCode] = e;
+        keys_record[time] = k;
+        //console.log(keys_record);
+    }
+
+    function dinoJumpPress(dino, playSound) {
         if (!started) {
             started = true;
             alert.text = '';
         }
-        if (!dino.isJumping && !down.isDown && !failed && !paused) {
+        if (!dino.isJumping && !failed && !paused) {
             dino.vy = -10;
             dino.isJumping = true;
-            if (!jump_sound_muted) {
+            if (!jump_sound_muted && playSound) {
                 createjs.Sound.play('jump_sound', {
                     volume: 0.3
                 });
@@ -213,7 +252,12 @@ $(function() {
             dino.texture = dino_jump;
         }
     }
-    space.release = function() {
+    space.press = function() {
+        dinoJumpPress(dino, true);
+        putEvent(ticks, 1, space.code);
+    }
+
+    function dinoJumpRelease(dino) {
         if (dino.isJumping) {
             dino.isFalling = true;
             dino.texture = dino_fall;
@@ -222,19 +266,41 @@ $(function() {
             }
         }
     }
-    down.press = function() {
+    space.release = function() {
+        dinoJumpRelease(dino);
+        putEvent(ticks, 0, space.code);
+    }
+
+    function dinoDownPress(dino) {
         if (dino.isJumping) {
             dino.vy = 20;
             dino.texture = dino_fall;
         }
         dino.duck = true;
+    }
+    down.press = function() {
+        dinoDownPress(dino);
+        putEvent(ticks, 1, down.code);
     };
-    down.release = function() {
+
+    function dinoDownRelease(dino) {
         if (dino.isFalling) {
             dino.vy = 10;
         }
         dino.duck = false;
     }
+    down.release = function() {
+        dinoDownRelease(dino);
+        putEvent(ticks, 0, down.code);
+    }
+    var keyActionMap = {};
+    keyActionMap[space.code] = [];
+    keyActionMap[space.code][0] = dinoJumpRelease;
+    keyActionMap[space.code][1] = dinoJumpPress;
+    keyActionMap[down.code] = [];
+    keyActionMap[down.code][0] = dinoDownRelease;
+    keyActionMap[down.code][1] = dinoDownPress;
+    console.log("keyMap", keyActionMap);
     pause.press = function() {
         if (started && !failed) {
             paused = !paused;
@@ -252,9 +318,17 @@ $(function() {
             stage.removeChild(objects[0]);
             objects.splice(0, 1);
         }
+        l = shadowObjects.length;
+        for (var i = 0; i < l; i++) {
+            stage.removeChild(shadowObjects[0]);
+            shadowObjects.splice(0, 1);
+        }
         dino.texture = dino_skin;
+        shadowDino.texture = dino_skin;
         dino.x = 100;
+        shadowDino.x = 115;
         dino.y = 600 - 150;
+        shadowDino = 600 - 150;
         ticks = 0;
         last_tick = 0;
         score.text = 'Score: 0';
@@ -266,59 +340,118 @@ $(function() {
         paused = false;
         failed = false;
         dino.isJumping = false;
+        shadowDino.isJumping = false;
         dino.duck = false;
+        shadowDino.duck = false;
         dino.isFalling = false;
+        shadowDino.isFalling = false;
+        objects_record = {};
+        keys_record = {};
+        shadowInfo = parseShadow(SHADOW_TEST);
     };
     renderer.render(stage);
-    requestAnimationFrame(animate);
 
-    function animate() {
-        requestAnimationFrame(animate);
-        if (started && !paused && !failed) {
-            objects.forEach(function(item, i, objects) {
-                if (item.isRotating) {
-                    item.rotation += item.rotSpeed;
-                }
-                item.x += item.vx;
-                if (item.x <= -20) {
-                    objects.splice(i, 1);
-                    stage.removeChild(item);
-                }
-            });
-            objects.forEach(function(item, i, objects) {
-                var vx = 0;
-                var vy_duck = 0;
-                if (item.type == 'arrow') {
-                    vx = 65;
-                }
-                var vy = 0;
-                if (item.type == 'shuriken') {
-                    vy = 35;
-                }
-                if (dino.duck) {
-                    vy_duck = 30;
-                }
-                if (item.x + 5 < (dino.x + dino.width) && (item.x + item.width - 35 - vx) > dino.x + 30) {
-                    if ((item.y < dino.y + vy_duck && (item.y + item.height - vy) > (dino.y + vy_duck)) || (item.y + 5 < dino.y + dino.height + vy_duck && (item.y + item.height - vy) > (dino.y + vy_duck))) {
-                        if (item.type == 'arrow' || item.type == 'shuriken') {
+    function renderObjects(objects, dino, skipOver) {
+        objects.forEach(function(item, i, objects) {
+            if (item.isRotating) {
+                item.rotation += item.rotSpeed;
+            }
+            item.x += item.vx;
+            if (item.x <= -20) {
+                objects.splice(i, 1);
+                stage.removeChild(item);
+            }
+        });
+        objects.forEach(function(item, i, objects) {
+            var vx = 0;
+            var vy_duck = 0;
+            if (item.type == 'arrow') {
+                vx = 65;
+            }
+            var vy = 0;
+            if (item.type == 'shuriken') {
+                vy = 35;
+            }
+            if (dino.duck) {
+                vy_duck = 30;
+            }
+            if (item.x + 5 < (dino.x + dino.width) && (item.x + item.width - 35 - vx) > dino.x + 30) {
+                if ((item.y < dino.y + vy_duck && (item.y + item.height - vy) > (dino.y + vy_duck)) || (item.y + 5 < dino.y + dino.height + vy_duck && (item.y + item.height - vy) > (dino.y + vy_duck))) {
+                    if (!skipOver)
+                        if ((item.type == 'arrow' || item.type == 'shuriken')) {
                             failed = true;
                             alert.text = 'Game Over';
                             saveScore(getTicks());
+                            saveLastAttempt(objects_record, keys_record, ticks);
                             alert.position.x = 500 - alert.width / 2;
+                            objects_record = {};
+                            keys_record = {};
                         }
-                        if (item.type == 'coin') {
+                    if (item.type == 'coin') {
+                        if (!skipOver)
                             if (!coin_sound_muted) {
                                 createjs.Sound.play('coin_sound', {
                                     volume: 0.2
                                 });
                             }
-                            coins_score.text = 'X' + (++coins_cap);
-                            objects.splice(i, 1);
-                            stage.removeChild(item);
-                        }
+                        coins_score.text = 'X' + (++coins_cap);
+                        objects.splice(i, 1);
+                        stage.removeChild(item);
                     }
                 }
-            });
+            }
+        });
+    }
+    debug = [];
+    function renderDino(dinossos, swap, isSwap, shadow) {
+        if (shadow){
+            debug[0] = dinossos;
+        } else {
+            debug[1] = dinossos;
+        }
+        if (dinossos.isJumping || dinossos.isFalling) {
+            dinossos.y += dinossos.vy;
+        } else if (getTicks() % 2 == 0 && !dinossos.duck) {
+            if (isSwap) {
+                dinossos.texture = dino_run_1;
+                swap();
+            } else {
+                dinossos.texture = dino_run_2;
+                swap();
+            }
+        }
+        if (dinossos.y < 150) {
+            dinossos.vy = 10;
+            dinossos.isFalling = true;
+            dinossos.texture = dino_fall;
+        }
+        if (dinossos.y >= (600 - 150)) {
+            dinossos.y = 600 - 150;
+            dinossos.vy = 0;
+            dinossos.isJumping = false;
+            dinossos.isFalling = false;
+        }
+        if (dinossos.duck) {
+            if (getTicks() % 2 == 0) {
+                if (isSwap) {
+                    dinossos.texture = dino_duck_1;
+                    swap();
+                } else {
+                    dinossos.texture = dino_duck_2;
+                    swap();
+                }
+            }
+        }
+    }
+    animate();
+    var shadowInfo = parseShadow(SHADOW_TEST);
+    var shadowObjects = [];
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (started && !paused && !failed) {
+            renderObjects(objects, dino);
+            renderObjects(shadowObjects, shadowDino, true);
             ground_array.forEach(function(item, i, ground_array) {
                 item.x -= ground_speed;
                 if (item.x <= -50) {
@@ -395,50 +528,51 @@ $(function() {
                 }
                 var texture = PIXI.Texture.fromImage('images/' + image);
                 var object1 = new PIXI.Sprite(texture);
-                spawnObject(object1, x, y, speed, rotation, rotSpeed, type, height, width);
+                spawnObject(object1, x, y, speed, rotation, rotSpeed, type, height, width, objects_record);
                 objects.push(object1);
+                putObjectsForShadow(ticks, shadowInfo, shadowObjects);
                 id++;
             }
-            if ((dino.isJumping && space.isDown) || dino.isFalling) {
-                dino.y += dino.vy;
-            } else if (getTicks() % 2 == 0 && !dino.duck) {
-                if (swap) {
-                    dino.texture = dino_run_1;
-                    swap = !swap;
-                } else {
-                    dino.texture = dino_run_2;
-                    swap = !swap;
-                }
-            }
-            if (dino.y < 150 && !down.isDown) {
-                dino.vy = 10;
-                dino.isFalling = true;
-                dino.texture = dino_fall;
-            }
-            if (dino.y >= (600 - 150)) {
-                dino.y = 600 - 150;
-                dino.vy = 0;
-                dino.isJumping = false;
-                dino.isFalling = false;
-            }
-            if (dino.duck) {
-                if (getTicks() % 2 == 0) {
-                    if (swap) {
-                        dino.texture = dino_duck_1;
-                        swap = !swap;
-                    } else {
-                        dino.texture = dino_duck_2;
-                        swap = !swap;
-                    }
-                }
-            }
+            renderDino(dino, function() {
+                realSwap = !realSwap;
+            }, realSwap);
+            renderDino(shadowDino, function() {
+                shadowSwap = !shadowSwap;
+            }, shadowSwap, true);
             ticks++;
+            simulateDinoActions(ticks, shadowInfo, keyActionMap, shadowDino);
             score.text = 'Score: ' + getTicks();
         }
         renderer.render(stage);
     }
     getFromLocal();
 });
+
+function simulateDinoActions(ticks, shadowInfo, keyActionMap, shadowDino) {
+    //console.log("ticks ", ticks);
+    if (ticks > shadowInfo.ticks) {
+        return;
+    }
+    var actionsReg = shadowInfo.keys;
+    //console.log(actionsReg);
+    var actions = actionsReg[ticks];
+    if (!actions) {
+        return;
+    }
+    var pressActions = actions[1];
+    var releaseActions = actions[0];
+
+    function simulateActions(actions, action) {
+        if (actions) {
+            actions.forEach(function(item) {
+                //console.log("Camera! Action! ", item, " ", action);
+                keyActionMap[item][action](shadowDino, false);
+            });
+        }
+    }
+    simulateActions(pressActions, 1);
+    simulateActions(releaseActions, 0);
+}
 
 function getTicks() {
     return parseInt((ticks) / 5);
@@ -450,7 +584,7 @@ function addTexture(name, x, y) {
     stage.addChild(name);
 }
 
-function spawnObject(name, x, y, speed, rotation, rotSpeed, type, height, width) {
+function spawnObject(name, x, y, speed, rotation, rotSpeed, type, height, width, objects_rec) {
     name.vx = speed;
     name.isRotating = rotation;
     name.rotSpeed = rotSpeed;
@@ -461,7 +595,74 @@ function spawnObject(name, x, y, speed, rotation, rotSpeed, type, height, width)
     name.position.y = y;
     name.height = height;
     name.width = width;
+    if (objects_rec) {
+        var k = objects_rec[ticks];
+        if (!k) {
+            k = [];
+        }
+        k.push({
+            "y": y,
+            "type": type
+        });
+        objects_rec[ticks] = k;
+    }
+    //console.log(objects);
     stage.addChild(name);
+}
+
+function putObjectsForShadow(ticks, shadowInfo, shadowObjectsRegistry) {
+    if (ticks > shadowInfo.ticks) {
+        return;
+    }
+    var objectsReg = shadowInfo.objects;
+    var objects = objectsReg[ticks];
+    if (objects) {
+        objects.forEach(function(item, i, objects) {
+            var type;
+            var y;
+            var x = 1015;
+            var speed;
+            var rotation;
+            var rotSpeed;
+            var image;
+            var height;
+            var width;
+            switch (item.type) {
+                case "coin":
+                    image = 'coin.png';
+                    type = "coin";
+                    speed = -3;
+                    rotation = true;
+                    rotSpeed = 0.1;
+                    height = 50;
+                    width = 50;
+                    break;
+                case "arrow":
+                    image = "arrow.png";
+                    type = "arrow";
+                    speed = -15;
+                    rotation = false;
+                    height = 16;
+                    width = 75;
+                    break;
+                case "shuriken":
+                    image = "shuriken.png";
+                    type = "shuriken";
+                    speed = -10;
+                    rotation = true;
+                    rotSpeed = 5.9;
+                    height = 50;
+                    width = 50;
+                    break;
+            }
+            var texture = PIXI.Texture.fromImage('images/' + image);
+            var object = new PIXI.Sprite(texture);
+            object.alpha = 0.3;
+            spawnObject(object, x, item.y, speed, rotation, rotSpeed, type, height, width);
+            shadowObjectsRegistry.push(object);
+            //console.log(shadowObjectsRegistry);
+        });
+    }
 }
 
 function saveScore(new_score) {
@@ -510,3 +711,23 @@ function getFromLocal() {
         });
     }
 }
+
+function parseShadow(shadowCode) {
+    var toLoad = JSON.parse(LZString.decompressFromBase64(shadowCode));
+    console.log(toLoad);
+    return toLoad;
+}
+
+function saveLastAttempt(objects, keys_record, ticks) {
+    var toSave = {
+        "objects": objects,
+        "keys": keys_record,
+        "ticks": ticks
+    };
+    console.log(JSON.stringify(toSave));
+    toSave = LZString.compressToBase64(JSON.stringify(toSave));
+    console.log("To save: length - ", toSave.length, ", content: ", toSave);
+    console.log("Decompress test: ", LZString.decompressFromBase64(toSave));
+}
+//LZString.compress
+//LZString.decompress
