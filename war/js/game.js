@@ -351,7 +351,7 @@ $(function() {
         objects_record = new Object();
         keys_record = new Object();
         if (!SHADOW) {
-            shadowInfo = parseShadow(SHADOW_TEST);
+            shadowInfo = parseShadow(SHADOW_DEFAULT);
         } else {
             shadowInfo = parseShadow(SHADOW);
         }
@@ -389,19 +389,21 @@ $(function() {
                             failed = true;
                             alert.text = 'Game Over';
                             saveScore(getTicks());
+                            fbScorePublish(getTicks());
                             saveLastAttempt(objects_record, keys_record, ticks);
                             alert.position.x = 500 - alert.width / 2;
                             objects_record = {};
                             keys_record = {};
                         }
                     if (item.type == 'coin') {
-                        if (!skipOver)
+                        if (!skipOver) {
                             if (!coin_sound_muted) {
                                 createjs.Sound.play('coin_sound', {
                                     volume: 0.2
                                 });
                             }
-                        coins_score.text = 'X' + (++coins_cap);
+                            coins_score.text = 'X' + (++coins_cap);
+                        }
                         objects.splice(i, 1);
                         stage.removeChild(item);
                     }
@@ -453,16 +455,18 @@ $(function() {
     }
     animate();
     var shadowInfo;
-    if (!SHADOW) {
-        shadowInfo = parseShadow(SHADOW_TEST);
-    } else {
-        shadowInfo = parseShadow(SHADOW);
-    }
     var shadowObjects = [];
 
     function animate() {
         requestAnimationFrame(animate);
         if (started && !paused && !failed) {
+            if (!shadowInfo){
+                if (!SHADOW) {
+                    shadowInfo = parseShadow(SHADOW_DEFAULT);
+                } else {
+                    shadowInfo = parseShadow(SHADOW);
+                }
+            }
             renderObjects(objects, dino);
             renderObjects(shadowObjects, shadowDino, true);
             ground_array.forEach(function(item, i, ground_array) {
@@ -743,12 +747,23 @@ function saveLastAttempt(objects, keys_record, ticks, coins, score, misc) {
     };
     toSave = LZString.compressToBase64(JSON.stringify(toSave));
     var toSend = {
-        "shadow": toSave;
-        "score": score;
-        "coins": coins;
+        "shadow": toSave,
+        "score": score,
+        "coins": coins,
         "misc": JSON.stringify(misc)
     }
     var sendString = JSON.stringify(toSend);
+}
+
+function fbScorePublish(score) {
+    FB.ui({
+        method: 'feed',
+        link: 'http://dino-runner.appspot.com/',
+        caption: 'I\'ve scorred '+score+'. Can you beat me?',
+        picture: 'http://dino-runner.appspot.com/images/logo_1.png'
+    }, function(response) {
+        console.log(response);
+    });
 }
 //LZString.compress
 //LZString.decompress
