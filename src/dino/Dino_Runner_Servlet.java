@@ -34,15 +34,40 @@ public class Dino_Runner_Servlet extends HttpServlet {
     }
 
     private String getContent(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        return "<html> \n" //
-                + "<head> \n" //
-                + "<title>DINO-RUNNER</title> \n" //
-                + "<script type='text/javascript' src='js/jquery-2.2.3.js'></script> \n" //
-                + "<script src='https://code.createjs.com/soundjs-0.6.2.min.js'></script>" //
-                + "<link rel='stylesheet' type='text/css' href='css/main.css' />" //
-                + "<script src='https://raw.githubusercontent.com/pieroxy/lz-string/master/libs/lz-string.min.js'></script>" //
-                + "<script src='js/face.js'></script>" //
+        return "<!DOCTYPE html>\n"
+        		+ "<html> \n" //
+                + "<head> \n"
+                + "<meta charset=\"utf-8\">\n"+
+            "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \n"+
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> \n"+
+             "<title>DINO-RUNNER</title> \n" //
+               + " <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\">\n"
+                + "<link rel='stylesheet' type='text/css' href='css/main1.css'/>\n" //
+                
+                + "</head> \n" //
+                + "<body> \n" //
+                + "<nav class=\"navbar navbar-default\">\n"
+          		+"<div class=\"container\">\n"+
+          			"<div class=\"navbar-header\">\n"+
+          			"<a class=\"brand-name navbar-brand\" href=\"#\">Dinno runner</a>\n"+
+          		"</div>\n"+
+          		"<div class=\"navbar-collapse collapse\"> \n"+
+                    "<ul class=\"nav navbar-nav\">\n"+
+                      "<li class=\"active\"><a href=\"#\">Home</a></li>\n"+
+                      "<li><a href=\"\\scoreboard\">Scoreboard</a></li>\n"+
+        			  "<li class=\"pull-right\"><button id=\"fb_login\" class=\"my-facebook-btn btn btn-primary\" href=\"#\">facebook</button></li>\n"+
+                    "</ul>\n"+
+                  "</div>\n"+
+          		"</div>\n"+
+          	"</nav>\n"
+          	+ "<div class=\"game-container\">\n"+
+        	"<canvas width=\"1000\" height=\"600\" style=\"cursor: inherit;\"></canvas>\n"+
+        "</div>\n" //
+        + "<script type='text/javascript' src='js/jquery-2.2.3.js'></script> \n"
+        + "<script src=\" js/bootstrap.min.js \"></script>\n" //
+        + "<script src='https://code.createjs.com/soundjs-0.6.2.min.js'></script>\n" //
                 + "<script src='js/pixi.js'></script> \n" //
+                + "<script type='text/javascript' src='https://rawgit.com/pieroxy/lz-string/master/libs/lz-string.min.js'></script>\n" //
                 + "<script type='text/javascript'>" //
                 + "var HEIGHT            = " + HEIGHT + ";\n" //
                 + "var WIDTH             = " + WIDTH + ";\n" //
@@ -52,14 +77,10 @@ public class Dino_Runner_Servlet extends HttpServlet {
                 + "var GROUND_SPEED      = " + ground_speed + ";\n" //
                 + "var COINS_SCORE_COLOR = " + coins_score_color + ";\n" //
                 + "</script>" //
-                + "<script src='js/game.js'></script>" //
-                + "</head> \n" //
-                + "<body> \n" //
-                + "<div clas='header'>Header</div> \n" //
-                + "<div class='local_scores'>Local Scores</div> \n"//
-                + "<div class='footer'>Footer</div> \n"//
+                + "<script src='js/game.js'></script>\n" //
+               + "<script src='js/face1.js'></script>\n" //
+         
                 + "</body> \n"//
                 + "</html> \n";
-
     }
 }

@@ -8,8 +8,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>Dino_Runner_Servlet</servlet-name>
 		<servlet-class>dino.Dino_Runner_Servlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>ScoreBoard</servlet-name>
+		<servlet-class>dino.ScoreBoard</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Dino_Runner_Servlet</servlet-name>
 		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ScoreBoard</servlet-name>
+		<url-pattern>/scoreboard</url-pattern>
 	</servlet-mapping>
 </web-app>
