@@ -1,22 +1,62 @@
 canvas {
     position: absolute;
     margin: 10%;
-    border: 4px double black;
-    border-color:  red;
+    border: 4px solid black;
+    //border-color:  red;
 }
 
 body {
-    background-color: black;
+    background-color: white;
     background-image: url(../images/texture_1.jpg);
     background-size: 100%;
 }
 
-.local_scores {
-    position: absolute;
-    right: 10%;
-    top: 20%;
-    color:aqua;
-    font-family: fantasy;
-    background-color: azure;
-    
+.header{
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    background-color:#555;
+    color:white;
+    height:30px;
+}
+
+.brand-name{
+
+    color:#005500;
+}
+
+.navbar-default .navbar-brand {
+    font-weight:   bold;
+    color: #007700;
+}
+
+.navbar-default .navbar-brand :hover
+{
+    font-weight:   bold;
+    color: #005500;
+}
+
+.footer{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    background-color:#555;
+    color:white;
+    height:20px;
+}
+
+.my-facebook-btn{
+    margin-top: 8px;
+    margin-left: 650px;
+    float:right;
+    color: #fff;//#66b;
+    font-weight: bold;
+}
+
+.score-board{
+    background-color: #fff;
+    margin-left: 25%;
+    margin-right: 25%;
 }
