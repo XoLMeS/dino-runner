@@ -81,6 +81,14 @@ $(function() {
             volume: 0.1
         });
         main_theme.play('main_theme');
+        var mute_music = localStorage.getItem('mute_music');
+        if(mute_music){
+            if(mute_music=='true'){
+                music_button.dis = true;
+                music.texture = music_off_icon;
+                main_theme.muted = true;
+            }
+        }
     }
     var sound = new PIXI.Sprite(sound_on_icon);
     var music = new PIXI.Sprite(music_on_icon);
@@ -110,6 +118,7 @@ $(function() {
             jump_sound_muted = false;
             arrow_sound_muted = false;
             shuriken_sound_muted = false;
+            localStorage.setItem('mute_sound',false);
         } else {
             sound_button.dis = true;
             sound.texture = sound_off_icon;
@@ -117,6 +126,7 @@ $(function() {
             jump_sound_muted = true;
             arrow_sound_muted = true;
             shuriken_sound_muted = true;
+            localStorage.setItem('mute_sound',true);
         }
     };
     music_button.click = function(event) {
@@ -124,12 +134,26 @@ $(function() {
             music_button.dis = false;
             music.texture = music_on_icon;
             main_theme.muted = false;
+            localStorage.setItem('mute_music',false);
         } else {
             music_button.dis = true;
             music.texture = music_off_icon;
             main_theme.muted = true;
+            localStorage.setItem('mute_music',true);
         }
     };
+
+    var mute_sound = localStorage.getItem('mute_sound');
+    if(mute_sound){
+        if(mute_sound=='true'){
+            sound_button.dis = true;
+            sound.texture = sound_off_icon;
+            coin_sound_muted = true;
+            jump_sound_muted = true;
+            arrow_sound_muted = true;
+            shuriken_sound_muted = true;
+        }
+    }
     stage.addChild(sound_button);
     stage.addChild(music_button);
     var ground = new PIXI.Sprite(PIXI.Texture.fromImage('images/basic_ground_base.png'));
