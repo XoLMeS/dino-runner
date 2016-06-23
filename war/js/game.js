@@ -57,7 +57,7 @@ var coins_score = new PIXI.Text('X0', {
     dropShadow: true,
     dropShadowDistance: 4
 });
-var SHADOW_TEST = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiEgBYCuATgJYDWMAdiAC+AXSoBGLDlT4QRVBmKVqdBqiZsuvASPHY8hNAqU16jFhx78hokACZJ+2SXJUTq9Ra3WqtvdIOoACwAbMYqjHBgnNo2ilIyciFhpmoAhuzsYADu3iDEfgmGiq7hauaaVjoggQ7+TkGhJSkeFTFUgQUBZMnu6Zk5VdjxAUZNvRnZuRid9d1jZhqWMYJUvAQo6CBSoGJ4xLbCKyDBaDt4ABzEh1Tnp1t7B0diu5svuPvXIGK2d/GXn2ITq8LlcngB2X4PT62Yh3N4fI62QKQ6T/RGkFHvA7iEGfYhAs7SBFUYgQzZ/UHtH7A1GU6rI8lQo4YF6ErGfDDU0AUjlktloqgYDGMomPKjBBls4nHDCYgUgMHbL64o5g1n3UWfc5K+FikCXOV087C/l08iY6WkPnKzVHUgmjW4eUSWUi9lPCRwlXiEKGgGKr228SkWFu6ViK2Bp102yAv2I2xcm3unyBdXxaVI0Om6HBW5u+W2MHZ5OFsEOnmI86unNV/Pc712Ujqt6FyMFumKSWlztibuVkn2KPS/YO1udxQWvX4+uO+Wkku6vHnJMZ6fna1Lo5kGuO6U1btb9qkqefQLEWfjjlYCuNzm7o8gBQltccmrDvUYDqn5nTD+HI4EE4OBuA2aZgkEIA";
+var SHADOW_TEST = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiAIYBOLYA7iAL4C6VARiw5U+EEVQAWAGyVqdBqhBwwASwB2PfiAHY8hEuSo16jVuy58qAJmH7xaGXJOKQSABYBXFqoDWMTSsQaz1RA1QyZwVGD28/AK0qYjswhwijeVMlc05EkGJQsQknY2ilWJ9/QO1JFKLDKKzmNlygyULwyNKmivjqqmwReqlZbtdeqryMDrSuzPGvSoSg2SHOjJczFsttaRmJDGSxrYs8gHY68JL5mMW+8/2G4/K7yaCADkvZjbK3V+XtO9HqhDo1XDkdlRyGs0qDns1TkFSMC5psXnE3tohF8DkcbkoVBo8kIUT8ev9+jpsfYJKjfhMAYJdDDiqN8QjWljbCynuzCZSBCEeSMwbcMYydMlhdc0RzIZLgTLfhDibVhXC+WoBe1hXTyeKBYMaY42bL+cTprqyQsDcTVsaRfCVUEBHt1XjZQyBRdpab6RTiWdFX79UsBZ93aL0WHiUDI/CvcToQ6laH7i7kVao3K8tys/DzUFbKTs87tNZqalWaXtrnmSmQ+Da0XuQ69U3EeWhW3rWKY0WpQ6NbKyzYCr6a52bGqhx7lc3yzqe5POTYjVW0MP/bai5blwmA0X7RuQXOmqPgm7ZyudtwqP4CCh0CARKABHhiNZeHedNY0KAhk/b9BGkSR/x0D8vx/AR3necDAKgwRyHA99RHeYhgOCARiHgvB0Mw6xbBQyCCNqXDRCAn9rEkP9n1Q3B8J/ZIznIhiMKY6QWLovD2KSUhaIAnjMMkXRiLQ3iQEkSQcOfIZGKoSQzgEiDxMwjBBVY+SQAwCsxLYtT2k0iSMGkVC3yEn8MH4ozMOkUguPMijEJAM4NNkkifyUuDuNUzzSFIGyf3eZE9MoqEBDA9ynMw/iMBswQLKhKTQuc5EAqi3AwpAUhOL0rT7PSwTfKZUhIsc/ToIrByX0SyUIpSzDsOIGSisy5zsOSnyKsEYgzmquSJOw0gzJU7qdBEsqauK8aMGq+isois4WqmtrGskHK8sGnSRoGxrDmW+itN0MiMqOjAZE2vbQlas7zsu6DpkKlazukA7at0aRvJuralPuwRZv696MHeEbDq20rAv+kKuqOzjlt26ClLmjzBDOaTWIWs5ZD+nQ40h3Hfq6hbYKehDGuGuKifa0hmox6mTJxgR/MmhGbAi5SwYI114dqisQZxwjRNOiTCM68qtMIqz8cIs4nvm5zCOQjKsusYhJC+0aVeIaRlLJqjiHQgWRMp77SPVhqqMU3WUeCdbX1GiXDmt6aQj6i21yV1qVasjXOao0D7YRn8EFUOBfCfaw9mkbggA==";
 $(function() {
     var main_theme;
     var arrow_sound_muted = false;
@@ -168,7 +168,7 @@ $(function() {
     dino.isJumping = false;
     dino.isFalling = false;
     shadowDino.isFalling = false;
-    shadowDino.isFalling = false;
+    shadowDino.isJumping = false;
     shadowDino.alpha = 0.3;
     // Obstacles and collectables registry
     // objects[ticks] - array of objects, spawned "ticks" afters start
@@ -328,7 +328,7 @@ $(function() {
         dino.x = 100;
         shadowDino.x = 115;
         dino.y = 600 - 150;
-        shadowDino = 600 - 150;
+        shadowDino.y = 600 - 150;
         ticks = 0;
         last_tick = 0;
         score.text = 'Score: 0';
@@ -345,8 +345,8 @@ $(function() {
         shadowDino.duck = false;
         dino.isFalling = false;
         shadowDino.isFalling = false;
-        objects_record = {};
-        keys_record = {};
+        objects_record = new Object();
+        keys_record = new Object();
         shadowInfo = parseShadow(SHADOW_TEST);
     };
     renderer.render(stage);
@@ -551,6 +551,7 @@ $(function() {
 function simulateDinoActions(ticks, shadowInfo, keyActionMap, shadowDino) {
     //console.log("ticks ", ticks);
     if (ticks > shadowInfo.ticks) {
+        console.log("Too high ticks!");
         return;
     }
     var actionsReg = shadowInfo.keys;
