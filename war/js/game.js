@@ -57,7 +57,10 @@ var coins_score = new PIXI.Text('X0', {
     dropShadow: true,
     dropShadowDistance: 4
 });
-var SHADOW_TEST = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiAIYBOLYA7iAL4C6VARiw5U+EEVQAWAGyVqdBqhBwwASwB2PfiAHY8hEuSo16jVuy58qAJmH7xaGXJOKQSABYBXFqoDWMTSsQaz1RA1QyZwVGD28/AK0qYjswhwijeVMlc05EkGJQsQknY2ilWJ9/QO1JFKLDKKzmNlygyULwyNKmivjqqmwReqlZbtdeqryMDrSuzPGvSoSg2SHOjJczFsttaRmJDGSxrYs8gHY68JL5mMW+8/2G4/K7yaCADkvZjbK3V+XtO9HqhDo1XDkdlRyGs0qDns1TkFSMC5psXnE3tohF8DkcbkoVBo8kIUT8ev9+jpsfYJKjfhMAYJdDDiqN8QjWljbCynuzCZSBCEeSMwbcMYydMlhdc0RzIZLgTLfhDibVhXC+WoBe1hXTyeKBYMaY42bL+cTprqyQsDcTVsaRfCVUEBHt1XjZQyBRdpab6RTiWdFX79UsBZ93aL0WHiUDI/CvcToQ6laH7i7kVao3K8tys/DzUFbKTs87tNZqalWaXtrnmSmQ+Da0XuQ69U3EeWhW3rWKY0WpQ6NbKyzYCr6a52bGqhx7lc3yzqe5POTYjVW0MP/bai5blwmA0X7RuQXOmqPgm7ZyudtwqP4CCh0CARKABHhiNZeHedNY0KAhk/b9BGkSR/x0D8vx/AR3necDAKgwRyHA99RHeYhgOCARiHgvB0Mw6xbBQyCCNqXDRCAn9rEkP9n1Q3B8J/ZIznIhiMKY6QWLovD2KSUhaIAnjMMkXRiLQ3iQEkSQcOfIZGKoSQzgEiDxMwjBBVY+SQAwCsxLYtT2k0iSMGkVC3yEn8MH4ozMOkUguPMijEJAM4NNkkifyUuDuNUzzSFIGyf3eZE9MoqEBDA9ynMw/iMBswQLKhKTQuc5EAqi3AwpAUhOL0rT7PSwTfKZUhIsc/ToIrByX0SyUIpSzDsOIGSisy5zsOSnyKsEYgzmquSJOw0gzJU7qdBEsqauK8aMGq+isois4WqmtrGskHK8sGnSRoGxrDmW+itN0MiMqOjAZE2vbQlas7zsu6DpkKlazukA7at0aRvJuralPuwRZv696MHeEbDq20rAv+kKuqOzjlt26ClLmjzBDOaTWIWs5ZD+nQ40h3Hfq6hbYKehDGuGuKifa0hmox6mTJxgR/MmhGbAi5SwYI114dqisQZxwjRNOiTCM68qtMIqz8cIs4nvm5zCOQjKsusYhJC+0aVeIaRlLJqjiHQgWRMp77SPVhqqMU3WUeCdbX1GiXDmt6aQj6i21yV1qVasjXOao0D7YRn8EFUOBfCfaw9mkbggA==";
+var SHADOW_DEFAULT = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiAIYBOLYA7iAL4C6VARiw5U+EEVQAWAGyVqdBqhBwwASwB2PfiAHY8hEuSo16jVuy58qAJmH7xaGXJOKQSABYBXFqoDWMTSsQaz1RA1QyZwVGD28/AK0qYjswhwijeVMlc05EkGJQsQknY2ilWJ9/QO1JFKLDKKzmNlygyULwyNKmivjqqmwReqlZbtdeqryMDrSuzPGvSoSg2SHOjJczFsttaRmJDGSxrYs8gHY68JL5mMW+8/2G4/K7yaCADkvZjbK3V+XtO9HqhDo1XDkdlRyGs0qDns1TkFSMC5psXnE3tohF8DkcbkoVBo8kIUT8ev9+jpsfYJKjfhMAYJdDDiqN8QjWljbCynuzCZSBCEeSMwbcMYydMlhdc0RzIZLgTLfhDibVhXC+WoBe1hXTyeKBYMaY42bL+cTprqyQsDcTVsaRfCVUEBHt1XjZQyBRdpab6RTiWdFX79UsBZ93aL0WHiUDI/CvcToQ6laH7i7kVao3K8tys/DzUFbKTs87tNZqalWaXtrnmSmQ+Da0XuQ69U3EeWhW3rWKY0WpQ6NbKyzYCr6a52bGqhx7lc3yzqe5POTYjVW0MP/bai5blwmA0X7RuQXOmqPgm7ZyudtwqP4CCh0CARKABHhiNZeHedNY0KAhk/b9BGkSR/x0D8vx/AR3necDAKgwRyHA99RHeYhgOCARiHgvB0Mw6xbBQyCCNqXDRCAn9rEkP9n1Q3B8J/ZIznIhiMKY6QWLovD2KSUhaIAnjMMkXRiLQ3iQEkSQcOfIZGKoSQzgEiDxMwjBBVY+SQAwCsxLYtT2k0iSMGkVC3yEn8MH4ozMOkUguPMijEJAM4NNkkifyUuDuNUzzSFIGyf3eZE9MoqEBDA9ynMw/iMBswQLKhKTQuc5EAqi3AwpAUhOL0rT7PSwTfKZUhIsc/ToIrByX0SyUIpSzDsOIGSisy5zsOSnyKsEYgzmquSJOw0gzJU7qdBEsqauK8aMGq+isois4WqmtrGskHK8sGnSRoGxrDmW+itN0MiMqOjAZE2vbQlas7zsu6DpkKlazukA7at0aRvJuralPuwRZv696MHeEbDq20rAv+kKuqOzjlt26ClLmjzBDOaTWIWs5ZD+nQ40h3Hfq6hbYKehDGuGuKifa0hmox6mTJxgR/MmhGbAi5SwYI114dqisQZxwjRNOiTCM68qtMIqz8cIs4nvm5zCOQjKsusYhJC+0aVeIaRlLJqjiHQgWRMp77SPVhqqMU3WUeCdbX1GiXDmt6aQj6i21yV1qVasjXOao0D7YRn8EFUOBfCfaw9mkbggA==";
+var API_LINK = "/api";
+var MISC = {};
+var SHADOW = undefined;
 $(function() {
     var main_theme;
     var arrow_sound_muted = false;
@@ -372,7 +375,11 @@ $(function() {
         shadowDino.isFalling = false;
         objects_record = new Object();
         keys_record = new Object();
-        shadowInfo = parseShadow(SHADOW_TEST);
+        if (!SHADOW) {
+            shadowInfo = parseShadow(SHADOW_TEST);
+        } else {
+            shadowInfo = parseShadow(SHADOW);
+        }
     };
     renderer.render(stage);
 
@@ -459,8 +466,9 @@ $(function() {
         });
     }
     debug = [];
+
     function renderDino(dinossos, swap, isSwap, shadow) {
-        if (shadow){
+        if (shadow) {
             debug[0] = dinossos;
         } else {
             debug[1] = dinossos;
@@ -500,7 +508,12 @@ $(function() {
         }
     }
     animate();
-    var shadowInfo = parseShadow(SHADOW_TEST);
+    var shadowInfo;
+    if (!SHADOW) {
+        shadowInfo = parseShadow(SHADOW_TEST);
+    } else {
+        shadowInfo = parseShadow(SHADOW);
+    }
     var shadowObjects = [];
 
     function animate() {
@@ -784,23 +797,29 @@ function getFromLocal() {
 
 function parseShadow(shadowCode) {
     var toLoad = JSON.parse(LZString.decompressFromBase64(shadowCode));
-    console.log(toLoad);
     return toLoad;
 }
 
-function saveLastAttempt(objects, keys_record, ticks) {
+function setShadow(shadow) {
+    SHADOW = shadow;
+}
+
+
+
+function saveLastAttempt(objects, keys_record, ticks, coins, score, misc) {
     var toSave = {
         "objects": objects,
         "keys": keys_record,
         "ticks": ticks
     };
-    console.log(JSON.stringify(toSave));
     toSave = LZString.compressToBase64(JSON.stringify(toSave));
-    //if(getTicks() > user_score){
-        user_shadow = toSave;
-    //}
-    console.log("To save: length - ", toSave.length, ", content: ", toSave);
-    console.log("Decompress test: ", LZString.decompressFromBase64(toSave));
+    var toSend = {
+        "shadow": toSave,
+        "score": score,
+        "coins": coins,
+        "misc": JSON.stringify(misc)
+    }
+    var sendString = JSON.stringify(toSend);
 }
 
 var user_name;
