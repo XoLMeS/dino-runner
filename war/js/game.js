@@ -179,7 +179,7 @@ $(function() {
     stage.addChild(score);
     stage.addChild(record);
     stage.addChild(coins_score);
-    document.body.appendChild(renderer.view);
+    document.getElementsByClassName("game-container")[0].appendChild(renderer.view);
     stage.interactive = true;
     var texture = PIXI.Texture.fromImage('images/dino_default.png');
     var dino = new PIXI.Sprite(texture);
@@ -431,19 +431,6 @@ $(function() {
                                     score: scoreToSave
                                 });
                                 localStorage.setItem('shadow', user_shadow);
-                                //$('meta[property=\'og:description\']').attr('content', 'My Score Is' + getTicks());
-                                scoreToSave = getTicks();
-                                FB.init({
-                                    appId: '626764410807763',
-                                    status: false,
-                                    cookie: true,
-                                    xfbml: true,
-                                    oauth: true
-                                });
-                                FB.ui({
-                                    method: 'share',
-                                    href: 'http://dino-runner.appspot.com/',
-                                }, function(response) {});
                             }
                         }
                     if (item.type == 'coin') {
@@ -614,6 +601,7 @@ $(function() {
         renderer.render(stage);
     }
     getFromLocal();
+    normalizeCanvas();
 });
 
 function simulateDinoActions(ticks, shadowInfo, keyActionMap, shadowDino) {
@@ -813,22 +801,24 @@ function saveLastAttempt(objects, keys_record, ticks, coins, score, misc) {
     }
     var sendString = JSON.stringify(toSend);
 }
-
-function fbScorePublish(score) {
-    FB.ui({
-        method: 'feed',
-        link: 'http://dino-runner.appspot.com/',
-        caption: 'I\'ve scorred ' + score + '. Can you beat me?',
-        picture: 'http://dino-runner.appspot.com/images/logo_1.png'
-    }, function(response) {
-        console.log(response);
-    });
-}
 var user_name;
 var user_link;
 var user_coins;
 var user_shadow;
 var user_score;
+
+function fbScorePublish(score) {
+    if (user_name) {
+        FB.ui({
+            method: 'feed',
+            link: 'http://dino-runner.appspot.com/',
+            caption: 'I\'ve scorred ' + score + '. Can you beat me?',
+            picture: 'http://dino-runner.appspot.com/images/logo_1.png'
+        }, function(response) {
+            console.log(response);
+        });
+    }
+}
 
 function postToDataBase(method, userName, userLink, misc) {
     console.log("Post request");
@@ -896,5 +886,15 @@ function getFromDataBase(userName, userLink, cap) {
         error: function(xhr, ajaxOptions, thrownError) {}
     });
 };
+
+function normalizeCanvas(){
+    var cont = $(".game-container");
+    var elem = $("canvas");
+    var padd = (cont.width() - elem.width()) / 2;
+    elem.css({
+        "margin-left": padd + "px",
+        "position": "absolute"
+    });
+}
 //LZString.compress
 //LZString.decompress

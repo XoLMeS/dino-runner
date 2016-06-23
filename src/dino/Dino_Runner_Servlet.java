@@ -66,13 +66,18 @@ public class Dino_Runner_Servlet extends HttpServlet {
                 + "<ul class=\"nav navbar-nav\">\n"
                 + "<li class=\"active\"><a href=\"#\">Home</a></li>\n"
                 + "<li><a href=\"\\scoreboard\">Scoreboard</a></li>\n"
-                + "<li class=\"pull-right\"><div id='fb-root'></div><button id=\"fb_login\" class=\"my-facebook-btn btn btn-primary fb_login\" href=\"#\">facebook</button></li>\n"
-                + "</ul>\n" + "</div>\n" + "</div>\n" + "</nav>\n"
+                + "<li class=\"pull-right\"><button id=\"fb_login\" class=\"my-facebook-btn btn btn-primary fb_login\" href=\"#\">facebook</button></li>\n"
+                + "</ul>\n"
+                + "</div>\n"
+                + "</div>\n"
+                + "</nav>\n"
                 + "<div class=\"game-container\">\n"
-                + "<canvas width=\"1000\" height=\"600\" style=\"cursor: inherit;\"></canvas>\n"
+                + "<div id='fb-root'></div>\n"
+                // +
+                // "<canvas width=\"1000\" height=\"600\" style=\"cursor: inherit;\"></canvas>\n"
                 + "</div>\n" //
                 + "<script type='text/javascript' src='js/jquery-2.2.3.js'></script> \n"
-                + "<script src=\" js/bootstrap.min.js \"></script>\n" //
+                + "<script src=\"js/bootstrap.min.js \"></script>\n" //
                 + "<script src='https://code.createjs.com/soundjs-0.6.2.min.js'></script>\n" //
                 + "<script src='js/pixi.js'></script> \n" //
                 + "<script type='text/javascript' src='https://rawgit.com/pieroxy/lz-string/master/libs/lz-string.min.js'></script>\n" //
