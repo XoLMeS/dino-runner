@@ -37,6 +37,17 @@ public class Dino_Runner_Servlet extends HttpServlet {
         return "<!DOCTYPE html>\n"
         		+ "<html> \n" //
                 + "<head> \n"
+                
+                +"<meta property='og:image' content='http://dino-runner.appspot.com/images/logo_1.png'/>"
+				+"<meta property='og:image:width' content='375'/>"
+				+"<meta property='og:image:height' content='360'/>"
+				+"<meta property='og:image:type' content='image/png'>"
+				+"<meta property='og:title' content='New Record'/>"
+				+"<meta property='og:description' content='My Score Is Over 9000' />"
+				+"<meta property='og:url' content='http://dino-runner.appspot.com/Dino_Runner_Servlet'/>"
+				+"<meta property='og:site_name' content='Dino-Runner'/>"
+				+"<meta property='og:type' content='games'/>"
+				
                 + "<meta charset=\"utf-8\">\n"+
             "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \n"+
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> \n"+
@@ -55,7 +66,7 @@ public class Dino_Runner_Servlet extends HttpServlet {
                     "<ul class=\"nav navbar-nav\">\n"+
                       "<li class=\"active\"><a href=\"#\">Home</a></li>\n"+
                       "<li><a href=\"\\scoreboard\">Scoreboard</a></li>\n"+
-        			  "<li class=\"pull-right\"><button id=\"fb_login\" class=\"my-facebook-btn btn btn-primary\" href=\"#\">facebook</button></li>\n"+
+        			  "<li class=\"pull-right\"><div id='fb-root'></div><button id=\"fb_login\" class=\"my-facebook-btn btn btn-primary fb_login\" href=\"#\">facebook</button></li>\n"+
                     "</ul>\n"+
                   "</div>\n"+
           		"</div>\n"+

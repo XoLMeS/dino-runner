@@ -78,6 +78,14 @@ $(function() {
             volume: 0.1
         });
         main_theme.play('main_theme');
+        var mute_music = localStorage.getItem('mute_music');
+        if(mute_music){
+            if(mute_music=='true'){
+                music_button.dis = true;
+                music.texture = music_off_icon;
+                main_theme.muted = true;
+            }
+        }
     }
     var sound = new PIXI.Sprite(sound_on_icon);
     var music = new PIXI.Sprite(music_on_icon);
@@ -107,6 +115,7 @@ $(function() {
             jump_sound_muted = false;
             arrow_sound_muted = false;
             shuriken_sound_muted = false;
+            localStorage.setItem('mute_sound',false);
         } else {
             sound_button.dis = true;
             sound.texture = sound_off_icon;
@@ -114,6 +123,7 @@ $(function() {
             jump_sound_muted = true;
             arrow_sound_muted = true;
             shuriken_sound_muted = true;
+            localStorage.setItem('mute_sound',true);
         }
     };
     music_button.click = function(event) {
@@ -121,12 +131,29 @@ $(function() {
             music_button.dis = false;
             music.texture = music_on_icon;
             main_theme.muted = false;
+            localStorage.setItem('mute_music',false);
         } else {
             music_button.dis = true;
             music.texture = music_off_icon;
             main_theme.muted = true;
+            localStorage.setItem('mute_music',true);
         }
     };
+    
+    var mute_sound = localStorage.getItem('mute_sound');
+    if(mute_sound){
+        if(mute_sound=='true'){
+            sound_button.dis = true;
+            sound.texture = sound_off_icon;
+            coin_sound_muted = true;
+            jump_sound_muted = true;
+            arrow_sound_muted = true;
+            shuriken_sound_muted = true;
+        }
+    }
+    
+   
+    
     stage.addChild(sound_button);
     stage.addChild(music_button);
     var ground = new PIXI.Sprite(PIXI.Texture.fromImage('images/basic_ground_base.png'));
@@ -332,8 +359,6 @@ $(function() {
         ticks = 0;
         last_tick = 0;
         score.text = 'Score: 0';
-        coins_score.text = 'X0';
-        coins_cap = 0;
         alert.text = 'Press "Space" to start';
         alert.position.x = 500 - alert.width / 2;
         started = false;
@@ -386,17 +411,48 @@ $(function() {
                             alert.position.x = 500 - alert.width / 2;
                             objects_record = {};
                             keys_record = {};
+                            var scoreToSave = user_score;
+                            if(getTicks() > user_score){  
+                                scoreToSave = getTicks();
+                            }
+                            else {
+                                scoreToSave = user_score;
+                            }
+                            if(local_scores[0] > scoreToSave){
+                                scoreToSave = local_scores[0];
+                            }
+                            
+                            if(user_name){
+                                postToDataBase("update",user_name,user_link,{coins: coins_cap, shadow: "", score: scoreToSave});
+                                localStorage.setItem('shadow',user_shadow);
+                                //$('meta[property=\'og:description\']').attr('content', 'My Score Is' + getTicks());
+                                 scoreToSave = getTicks();
+                                FB.init({
+                                    appId      : '626764410807763',
+                                    status     : false, 
+                                    cookie     : true,
+                                    xfbml      : true,
+                                    oauth      : true
+                                }); 
+                                FB.ui({
+                                  method: 'share',
+                                  href: 'http://dino-runner.appspot.com/',
+                                }, function(response){});
+                            }
                         }
                     if (item.type == 'coin') {
-                        if (!skipOver)
+                        if (!skipOver){
                             if (!coin_sound_muted) {
                                 createjs.Sound.play('coin_sound', {
                                     volume: 0.2
                                 });
+                                
                             }
                         coins_score.text = 'X' + (++coins_cap);
+                        }
                         objects.splice(i, 1);
                         stage.removeChild(item);
+                       
                     }
                 }
             }
@@ -710,7 +766,20 @@ function getFromLocal() {
                 local_scores.splice(i, 1, parseInt(item));
             }
         });
+        
+        if(localStorage.getItem('shadow')){
+            user_shadow = localStorage.getItem('shadow');
+        }
     }
+    
+    var coins_from_local = localStorage.getItem('coins');
+    if(coins_from_local){
+        coins_score.text = 'X' + coins_from_local;
+        coins_cap = coins_from_local;
+    }
+    
+    
+   
 }
 
 function parseShadow(shadowCode) {
@@ -727,8 +796,79 @@ function saveLastAttempt(objects, keys_record, ticks) {
     };
     console.log(JSON.stringify(toSave));
     toSave = LZString.compressToBase64(JSON.stringify(toSave));
+    //if(getTicks() > user_score){
+        user_shadow = toSave;
+    //}
     console.log("To save: length - ", toSave.length, ", content: ", toSave);
     console.log("Decompress test: ", LZString.decompressFromBase64(toSave));
 }
+
+var user_name;
+var user_link;
+var user_coins;
+var user_shadow;
+var user_score;
+
+function postToDataBase(method, userName, userLink, misc ) {
+
+   console.log("Post request");
+
+    $.ajax({
+        url: "http://dino-runner.appspot.com/Service",
+        type: "POST",
+        data: {method: method, user_name: userName, user_link: userLink, shadow: misc.shadow, coins: misc.coins, score: misc.score},
+        dataType: "json",
+        success: function (result) {
+            switch (result) {
+                case true:
+                     console.log(result);
+                    break;
+                default:
+                    console.log(result);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+       
+        }
+    });
+};
+
+function getFromDataBase(userName, userLink, cap) {
+    console.log('get request');
+    $.ajax({
+        url: "http://dino-runner.appspot.com/Service",
+        type: "GET",
+        data: {user_name: userName, user_link: userLink, capacity: cap},
+        dataType: "json",
+        success: function (result) {
+                
+            if(cap == null){
+                var list = result;
+                console.log(list);
+                if(!list){
+                    postToDataBase('saveNewUser', user_name, user_link, {shadow: null, coins: 0, score: 0});
+                    console.log('New User');
+                }
+                else {                     
+                    user_coins = list[0].propertyMap.Coins;
+                    coins_score.text = 'X' + user_coins;
+                    coins_cap = user_coins;
+                    localStorage.setItem('coins',user_coins);
+                    user_score = list[0].propertyMap.Highscore;
+                    if(local_scores[0] < user_score){
+                        record.text = 'Record: ' + user_score;
+                        local_scores[0] = user_score;
+                    }
+                    
+                    
+                    console.log(user_coins,user_score, user_shadow);
+                }
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        
+        }
+    });
+};
 //LZString.compress
 //LZString.decompress
