@@ -4,6 +4,12 @@ body {
     background-size: 100%;
 }
 
+canvas
+{
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .header{
     position:absolute;
     left:0;
