@@ -48,8 +48,9 @@ public class ScoreBoard extends HttpServlet {
 	"</div>\n"+
 	"<div class=\"navbar-collapse collapse\"> \n"+
     "<ul class=\"nav navbar-nav\">\n"+
-      "<li class=\"active\"><a href=\"\\\">Home</a></li>\n"+
-      "<li><a href=\"#\">Scoreboard</a></li>\n"+
+    "<li><img src=\"images/logo_1.png\" style=\"width:50px;\"></li>\n"+
+    "<li><a href=\"\\\">Home</a></li>\n"+
+      "<li class=\"active\"><a href=\"#\">Scoreboard</a></li>\n"+
 	  "<li class=\"pull-right\"><button id=\"fb_login\" class=\"my-facebook-btn btn btn-primary\" href=\"#\">facebook</button></li>\n"+
     "</ul>\n"+
     "</div>\n"+
