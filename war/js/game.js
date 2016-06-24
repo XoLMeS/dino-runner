@@ -57,8 +57,8 @@ var coins_score = new PIXI.Text('X0', {
     dropShadow: true,
     dropShadowDistance: 4
 });
-var SHADOW_DEFAULT = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiAIYBOLYA7iAL4C6VARiw5U+EEVQAWAGyVqdBqhBwwASwB2PfiAHY8hEuSo16jVuy58qAJmH7xaGXJOKQSABYBXFqoDWMTSsQaz1RA1QyZwVGD28/AK0qYjswhwijeVMlc05EkGJQsQknY2ilWJ9/QO1JFKLDKKzmNlygyULwyNKmivjqqmwReqlZbtdeqryMDrSuzPGvSoSg2SHOjJczFsttaRmJDGSxrYs8gHY68JL5mMW+8/2G4/K7yaCADkvZjbK3V+XtO9HqhDo1XDkdlRyGs0qDns1TkFSMC5psXnE3tohF8DkcbkoVBo8kIUT8ev9+jpsfYJKjfhMAYJdDDiqN8QjWljbCynuzCZSBCEeSMwbcMYydMlhdc0RzIZLgTLfhDibVhXC+WoBe1hXTyeKBYMaY42bL+cTprqyQsDcTVsaRfCVUEBHt1XjZQyBRdpab6RTiWdFX79UsBZ93aL0WHiUDI/CvcToQ6laH7i7kVao3K8tys/DzUFbKTs87tNZqalWaXtrnmSmQ+Da0XuQ69U3EeWhW3rWKY0WpQ6NbKyzYCr6a52bGqhx7lc3yzqe5POTYjVW0MP/bai5blwmA0X7RuQXOmqPgm7ZyudtwqP4CCh0CARKABHhiNZeHedNY0KAhk/b9BGkSR/x0D8vx/AR3necDAKgwRyHA99RHeYhgOCARiHgvB0Mw6xbBQyCCNqXDRCAn9rEkP9n1Q3B8J/ZIznIhiMKY6QWLovD2KSUhaIAnjMMkXRiLQ3iQEkSQcOfIZGKoSQzgEiDxMwjBBVY+SQAwCsxLYtT2k0iSMGkVC3yEn8MH4ozMOkUguPMijEJAM4NNkkifyUuDuNUzzSFIGyf3eZE9MoqEBDA9ynMw/iMBswQLKhKTQuc5EAqi3AwpAUhOL0rT7PSwTfKZUhIsc/ToIrByX0SyUIpSzDsOIGSisy5zsOSnyKsEYgzmquSJOw0gzJU7qdBEsqauK8aMGq+isois4WqmtrGskHK8sGnSRoGxrDmW+itN0MiMqOjAZE2vbQlas7zsu6DpkKlazukA7at0aRvJuralPuwRZv696MHeEbDq20rAv+kKuqOzjlt26ClLmjzBDOaTWIWs5ZD+nQ40h3Hfq6hbYKehDGuGuKifa0hmox6mTJxgR/MmhGbAi5SwYI114dqisQZxwjRNOiTCM68qtMIqz8cIs4nvm5zCOQjKsusYhJC+0aVeIaRlLJqjiHQgWRMp77SPVhqqMU3WUeCdbX1GiXDmt6aQj6i21yV1qVasjXOao0D7YRn8EFUOBfCfaw9mkbggA==";
-var API_LINK = "/api";
+//var SHADOW_DEFAULT = "N4Ig9gRgVgpgxgFwM4gFygKwAY0G1QCeaAzAJxYA0ICBADjGiAIYBOLYA7iAL4C6VARiw5U+EEVQAWAGyVqdBqhBwwASwB2PfiAHY8hEuSo16jVuy58qAJmH7xaGXJOKQSABYBXFqoDWMTSsQaz1RA1QyZwVGD28/AK0qYjswhwijeVMlc05EkGJQsQknY2ilWJ9/QO1JFKLDKKzmNlygyULwyNKmivjqqmwReqlZbtdeqryMDrSuzPGvSoSg2SHOjJczFsttaRmJDGSxrYs8gHY68JL5mMW+8/2G4/K7yaCADkvZjbK3V+XtO9HqhDo1XDkdlRyGs0qDns1TkFSMC5psXnE3tohF8DkcbkoVBo8kIUT8ev9+jpsfYJKjfhMAYJdDDiqN8QjWljbCynuzCZSBCEeSMwbcMYydMlhdc0RzIZLgTLfhDibVhXC+WoBe1hXTyeKBYMaY42bL+cTprqyQsDcTVsaRfCVUEBHt1XjZQyBRdpab6RTiWdFX79UsBZ93aL0WHiUDI/CvcToQ6laH7i7kVao3K8tys/DzUFbKTs87tNZqalWaXtrnmSmQ+Da0XuQ69U3EeWhW3rWKY0WpQ6NbKyzYCr6a52bGqhx7lc3yzqe5POTYjVW0MP/bai5blwmA0X7RuQXOmqPgm7ZyudtwqP4CCh0CARKABHhiNZeHedNY0KAhk/b9BGkSR/x0D8vx/AR3necDAKgwRyHA99RHeYhgOCARiHgvB0Mw6xbBQyCCNqXDRCAn9rEkP9n1Q3B8J/ZIznIhiMKY6QWLovD2KSUhaIAnjMMkXRiLQ3iQEkSQcOfIZGKoSQzgEiDxMwjBBVY+SQAwCsxLYtT2k0iSMGkVC3yEn8MH4ozMOkUguPMijEJAM4NNkkifyUuDuNUzzSFIGyf3eZE9MoqEBDA9ynMw/iMBswQLKhKTQuc5EAqi3AwpAUhOL0rT7PSwTfKZUhIsc/ToIrByX0SyUIpSzDsOIGSisy5zsOSnyKsEYgzmquSJOw0gzJU7qdBEsqauK8aMGq+isois4WqmtrGskHK8sGnSRoGxrDmW+itN0MiMqOjAZE2vbQlas7zsu6DpkKlazukA7at0aRvJuralPuwRZv696MHeEbDq20rAv+kKuqOzjlt26ClLmjzBDOaTWIWs5ZD+nQ40h3Hfq6hbYKehDGuGuKifa0hmox6mTJxgR/MmhGbAi5SwYI114dqisQZxwjRNOiTCM68qtMIqz8cIs4nvm5zCOQjKsusYhJC+0aVeIaRlLJqjiHQgWRMp77SPVhqqMU3WUeCdbX1GiXDmt6aQj6i21yV1qVasjXOao0D7YRn8EFUOBfCfaw9mkbggA==";
+var SHADOW_DEFAULT = undefined;
 var MISC = {};
 var SHADOW = undefined;
 $(function() {
@@ -196,6 +196,7 @@ $(function() {
     shadowDino.isFalling = false;
     shadowDino.isJumping = false;
     shadowDino.alpha = 0.3;
+    shadowDino.isShadow = true;
     // Obstacles and collectables registry
     // objects[ticks] - array of objects, spawned "ticks" afters start
     // objects[ticks].y - y pos, objects[ticks].type - object type
@@ -369,13 +370,14 @@ $(function() {
         shadowDino.duck = false;
         dino.isFalling = false;
         shadowDino.isFalling = false;
+        shadowDino.removed = false;
+        if (shadowDino.dead){
+            addTexture(shadowDino, 115, 450);
+            shadowDino.dead = false;
+        }
         objects_record = new Object();
         keys_record = new Object();
-        if (!SHADOW) {
-            shadowInfo = parseShadow(SHADOW_DEFAULT);
-        } else {
-            shadowInfo = parseShadow(SHADOW);
-        }
+        shadowInfo = false;
     };
     renderer.render(stage);
 
@@ -411,7 +413,7 @@ $(function() {
                             alert.text = 'Game Over';
                             saveScore(getTicks());
                             fbScorePublish(getTicks());
-                            saveLastAttempt(objects_record, keys_record, ticks);
+                            saveLastAttempt(objects_record, keys_record, ticks, coins_cap, getTicks());
                             alert.position.x = 500 - alert.width / 2;
                             objects_record = {};
                             keys_record = {};
@@ -498,15 +500,20 @@ $(function() {
     function animate() {
         requestAnimationFrame(animate);
         if (started && !paused && !failed) {
+            renderObjects(objects, dino);
             if (!shadowInfo) {
                 if (!SHADOW) {
-                    shadowInfo = parseShadow(SHADOW_DEFAULT);
+                    if (SHADOW_DEFAULT) shadowInfo = parseShadow(SHADOW_DEFAULT);
                 } else {
                     shadowInfo = parseShadow(SHADOW);
                 }
+            } else {
+                if (shadowDino.dead && !shadowDino.removed) {
+                    stage.removeChild(shadowDino);
+                    shadowDino.removed = true;
+                }
+                renderObjects(shadowObjects, shadowDino, true);
             }
-            renderObjects(objects, dino);
-            renderObjects(shadowObjects, shadowDino, true);
             ground_array.forEach(function(item, i, ground_array) {
                 item.x -= ground_speed;
                 if (item.x <= -50) {
@@ -605,9 +612,8 @@ $(function() {
 });
 
 function simulateDinoActions(ticks, shadowInfo, keyActionMap, shadowDino) {
-    //console.log("ticks ", ticks);
-    if (ticks > shadowInfo.ticks) {
-        console.log("Too high ticks!");
+    if (!shadowInfo || ticks > shadowInfo.ticks) {
+        shadowDino.dead = true;
         return;
     }
     var actionsReg = shadowInfo.keys;
@@ -668,7 +674,7 @@ function spawnObject(name, x, y, speed, rotation, rotSpeed, type, height, width,
 }
 
 function putObjectsForShadow(ticks, shadowInfo, shadowObjectsRegistry) {
-    if (ticks > shadowInfo.ticks) {
+    if (!shadowInfo || ticks > shadowInfo.ticks) {
         return;
     }
     var objectsReg = shadowInfo.objects;
@@ -741,6 +747,9 @@ function saveScore(new_score) {
                 return;
             }
         } else {
+            if (i == 0) {
+                record.text = 'Record: ' + new_score;
+            }
             local_scores.splice(i, 1, new_score);
             save();
             return;
@@ -768,6 +777,7 @@ function getFromLocal() {
         });
         if (localStorage.getItem('shadow')) {
             user_shadow = localStorage.getItem('shadow');
+            setShadow(user_shadow);
         }
     }
     var coins_from_local = localStorage.getItem('coins');
@@ -778,6 +788,9 @@ function getFromLocal() {
 }
 
 function parseShadow(shadowCode) {
+    if (!shadowCode) {
+        return null;
+    }
     var toLoad = JSON.parse(LZString.decompressFromBase64(shadowCode));
     return toLoad;
 }
@@ -787,6 +800,7 @@ function setShadow(shadow) {
 }
 
 function saveLastAttempt(objects, keys_record, ticks, coins, score, misc) {
+    console.log(";sadfusiod aaskpfo shaiodfasdkja");
     var toSave = {
         "objects": objects,
         "keys": keys_record,
@@ -794,12 +808,17 @@ function saveLastAttempt(objects, keys_record, ticks, coins, score, misc) {
     };
     toSave = LZString.compressToBase64(JSON.stringify(toSave));
     var toSend = {
-        "shadow": toSave,
-        "score": score,
-        "coins": coins,
-        "misc": JSON.stringify(misc)
-    }
+            "shadow": toSave,
+            "score": score,
+            "coins": coins,
+            "misc": JSON.stringify(misc)
+        }
+        //TODO send this to server
     var sendString = JSON.stringify(toSend);
+    //if (score > local_scores[0]) {
+        localStorage.setItem('shadow', toSave);
+        setShadow(toSave);
+    //}
 }
 var user_name;
 var user_link;
@@ -887,7 +906,7 @@ function getFromDataBase(userName, userLink, cap) {
     });
 };
 
-function normalizeCanvas(){
+function normalizeCanvas() {
     var cont = $(".game-container");
     var elem = $("canvas");
     var padd = (cont.width() - elem.width()) / 2;
